@@ -1,0 +1,30 @@
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>fat</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <unpack>true</unpack>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <outputDirectory>.</outputDirectory>
+            <excludes>
+                <exclude>junit:junit</exclude>
+                <exclude>log4j:log4j</exclude>
+                <exclude>org.scala-lang*:*</exclude>
+                <exclude>org.apache.commons:*</exclude>
+                <exclude>org.apache.flink:*</exclude>
+                <exclude>org.apache.hadoop:*</exclude>
+                <exclude>org.apache.hbase:*</exclude>
+                <exclude>org.apache.hive*</exclude>
+                <exclude>org.apache.kafka:*</exclude>
+                <exclude>org.apache.spark:*</exclude>
+                <exclude>org.apache.zookeeper:*</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

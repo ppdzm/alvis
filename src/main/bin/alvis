@@ -1,0 +1,63 @@
+#!/bin/bash
+base=$(dirname "$(realpath "$0")")/..
+export LANG=en_US.UTF-8
+export BASE=${base}
+DRIVER_CLASSPATH="${base}/conf"
+LIB_DIR="${base}/lib"
+for i in "$LIB_DIR"/*; do
+  JARS=${i},"$JARS"
+done
+s=0
+m=1
+f=""
+for p in "$@"; do
+  case $p in
+  -a) m=0 ;;
+  -c) m=0 ;;
+  -g) m=0 ;;
+  -l) m=0 ;;
+  -h) m=0 ;;
+  -s) s=1 ;;
+  *)
+    if [[ $s -eq 1 && "$f" == "" ]]; then
+      f=$p
+    fi
+    ;;
+  esac
+done
+if [ $m -eq 0 ]; then
+  master=local
+elif [ $s -eq 1 ]; then
+  master=yarn
+  mode=cluster
+else
+  master=yarn
+  mode=client
+fi
+#echo "use $master as spark master"
+if [ $s -eq 1 ]; then
+  spark-submit \
+    --name alvis \
+    --master $master \
+    --deploy-mode $mode \
+    --conf spark.driver.extraJavaOptions="-Dprogram.language=zh" \
+    --conf spark.kryoserializer.buffer=128m \
+    --conf spark.kryoserializer.buffer.max=512m \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --class org.sa.alvis.AlvisLauncher \
+    --driver-class-path "${DRIVER_CLASSPATH}":"${LIB_DIR}"/mysql-connector-java-5.1.38.jar \
+    --jars "$JARS" \
+    --files "$f" \
+    "${LIB_DIR}"/alvis-1.0.jar "$@" 1>/dev/null 2>&1 &
+else
+  spark-submit \
+    --name alvis \
+    --master $master \
+    --conf spark.kryoserializer.buffer=128m \
+    --conf spark.kryoserializer.buffer.max=512m \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --class org.sa.alvis.AlvisLauncher \
+    --driver-class-path "${DRIVER_CLASSPATH}":"${LIB_DIR}"/mysql-connector-java-5.1.38.jar \
+    --jars "$JARS" \
+    "${LIB_DIR}"/alvis-1.0.jar "$@" 2>/dev/null
+fi
